@@ -4,9 +4,7 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Ball
   - Paddle
-  - HorizontalSurface
   layers:
   - Default
   - TransparentFX
