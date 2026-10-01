@@ -1,57 +1,84 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
-public class BallMovement : MonoBehaviour
+public class BallBehavior : MonoBehaviour
 {
-    [SerializeField] public float _launchForce = 5.0f;
-    [SerializeField] private float _paddleInfluence = 0.4f;
-    [SerializeField] private float _speedIncrement = 1.0f; // Added missing variable
+    [SerializeField] private float _launchForce = 7.0f;
+    [SerializeField] private float _speedIncrement = 1.1f;
     
-    Rigidbody2D _rb;
-   
+    [SerializeField] private float _paddleInfluence = 0.4f;
+    
+    private Rigidbody2D _rb;
+
+    private AudioSource _source;
+    [SerializeField] private AudioClip _wallHit;
+    [SerializeField] private AudioClip _paddleHit;
+    [SerializeField] private AudioClip _scorePoint;
+    
+    
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        
-        Vector2 direction = Random.insideUnitCircle.normalized;
+        _source = GetComponent<AudioSource>();
 
-        _rb.AddForce(direction * _launchForce, ForceMode2D.Impulse);
+        ResetBall();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Paddle"))
         {
-            // Fixed: changed linearVelocityY to linearVelocity.y
-            if (!Mathf.Approximately(collision.rigidbody.linearVelocity.y, 0.0f))
+            if (!Mathf.Approximately(collision.rigidbody.linearVelocityY, 0.0f))
             {
-                // We compute direction using a weighted sum, where the weights use a one minus to be determined
+                Debug.Log("Collision with paddle!!!");
+                
+                // We compute direction using a weighted sum, where the weights
+                // use a one-minus to be determined
                 Vector2 direction = _rb.linearVelocity * (1.0f - _paddleInfluence)
-                + collision.rigidbody.linearVelocity * _paddleInfluence;
-
-                // Fixed: changed direction.normalize to direction.normalized
+                                    + collision.rigidbody.linearVelocity * _paddleInfluence;
+                
                 _rb.linearVelocity = _rb.linearVelocity.magnitude * direction.normalized * _speedIncrement;
-            }       
-        }    
+            }
+            
+            _source.PlayOneShot(_paddleHit);
+        }
+        else if (collision.gameObject.CompareTag("Wall"))
+        {
+            _source.pitch = Random.Range(0.9f, 1.1f);
+            _source.volume = Random.Range(0.8f, 1.0f);
+            
+            _source.clip = _wallHit;
+            _source.Play();
+        }
     }
-    
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        ResetBall();
+        if (other.CompareTag("DeathZone"))
+        {
+            _source.PlayOneShot(_scorePoint);
+            ResetBall();
+        }
+        if (other.CompareTag("Brick"))
+        {
+            _source.PlayOneShot(_scorePoint);
+        }
     }
 
     private void ResetBall()
     {
-        //stop the ball
+        // Stop the ball
         _rb.linearVelocity = Vector2.zero;
-
-        //teleport the ball to the middle of the screen
+        
+        // Teleport the ball to the middle of the screen
         transform.position = Vector3.zero;
-
-        //compute a new random direction
+        
+        // Compute a new random direction
         Vector2 direction = Random.insideUnitCircle.normalized;
-
-        //launch ball in the computed direction with the specified force
+        
+        // Launch ball in the computed direction with the specified force
         _rb.AddForce(direction * _launchForce, ForceMode2D.Impulse);
     }
 }

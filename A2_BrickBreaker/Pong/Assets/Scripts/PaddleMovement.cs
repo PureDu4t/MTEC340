@@ -1,17 +1,17 @@
 using UnityEngine;
 
-public class PaddleMovement : MonoBehaviour
+public class PaddleBehavior : MonoBehaviour
 {
     private float _direction = 0.0f;
+    
     [SerializeField] private float _speed = 5.0f;
 
-    [SerializeField] private KeyCode _updirection = KeyCode.UpArrow;
-    [SerializeField] private KeyCode _downdirection = KeyCode.DownArrow;
-
+    [SerializeField] private KeyCode _upDirection = KeyCode.UpArrow;
+    [SerializeField] private KeyCode _downDirection = KeyCode.DownArrow;
+    
     private Rigidbody2D _rb;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
     }
@@ -21,19 +21,18 @@ public class PaddleMovement : MonoBehaviour
         _rb.linearVelocityY = _direction * _speed;
     }
 
-    // Update is called once per frame
     void Update()
     {
         _direction = 0.0f;
 
-        if (Input.GetKey(_updirection))
+        if (Input.GetKey(_upDirection))
         {
             _direction += 1.0f;
         }
-        if (Input.GetKey(_downdirection))
+
+        if (Input.GetKey(_downDirection))
         {
             _direction -= 1.0f;
         }
     }
 }
-

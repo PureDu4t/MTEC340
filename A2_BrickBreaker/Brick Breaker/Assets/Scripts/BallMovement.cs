@@ -10,12 +10,18 @@ public class BallBehavior : MonoBehaviour
     
     [SerializeField] private float _paddleInfluence = 0.4f;
     [SerializeField] private Vector3 _startPosition;
+    private AudioSource _source;
+    [SerializeField] private AudioClip _wallHit;
+    [SerializeField] private AudioClip _paddleHit;
+    [SerializeField] private AudioClip _scorePoint;
+    [SerializeField] private AudioClip _death;
     
     Rigidbody2D _rb;
     
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _source = GetComponent<AudioSource>();
         _startPosition = transform.position;
 
         ResetBall();
@@ -25,21 +31,35 @@ public class BallBehavior : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Paddle"))
         {
-            if (!Mathf.Approximately(collision.rigidbody.linearVelocityY, 0.0f))
-            {
-                Debug.Log("Collision with paddle!!!");
+            Debug.Log("Collision with paddle!!!");
+            _source.PlayOneShot(_paddleHit);
 
-                Vector2 direction = _rb.linearVelocity * (1.0f - _paddleInfluence)
-                                    + collision.rigidbody.linearVelocity * _paddleInfluence;
+            Vector2 direction = _rb.linearVelocity * (1.0f - _paddleInfluence)
+                    + collision.rigidbody.linearVelocity * _paddleInfluence;
                 
-                _rb.linearVelocity = _rb.linearVelocity.magnitude * direction.normalized * _speedIncrement;
-            }    
+            _rb.linearVelocity = _rb.linearVelocity.magnitude * direction.normalized * _speedIncrement;    
+        }
+        else if (collision.gameObject.CompareTag("Wall"))
+        {
+            _source.pitch = Random.Range(0.9f, 1.1f);
+            _source.volume = Random.Range(0.8f, 1.0f);
+            
+            _source.clip = _wallHit;
+            _source.Play();
+        }
+        else if (collision.gameObject.CompareTag("Brick"))
+        {
+            _source.PlayOneShot(_scorePoint);
         }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        ResetBall();
+        if (other.CompareTag("DeathZone"))
+        {
+            _source.PlayOneShot(_death);
+            ResetBall();
+        }
     }
 
     private void ResetBall()

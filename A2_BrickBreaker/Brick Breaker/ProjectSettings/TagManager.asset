@@ -7,6 +7,9 @@ TagManager:
   - Ball
   - Paddle
   - HorizontalSurface
+  - DeathZone
+  - Brick
+  - Wall
   layers:
   - Default
   - TransparentFX
