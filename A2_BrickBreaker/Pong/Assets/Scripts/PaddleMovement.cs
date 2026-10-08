@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PaddleBehavior : MonoBehaviour
+public class PaddleMovement : MonoBehaviour
 {
     private float _direction = 0.0f;
     

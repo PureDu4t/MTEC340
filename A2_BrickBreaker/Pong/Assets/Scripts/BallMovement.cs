@@ -3,7 +3,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class BallBehavior : MonoBehaviour
+public class BallMovement : MonoBehaviour
 {
     [SerializeField] private float _launchForce = 7.0f;
     [SerializeField] private float _speedIncrement = 1.1f;
@@ -44,7 +44,7 @@ public class BallBehavior : MonoBehaviour
             
             _source.PlayOneShot(_paddleHit);
         }
-        else if (collision.gameObject.CompareTag("Wall"))
+        else
         {
             _source.pitch = Random.Range(0.9f, 1.1f);
             _source.volume = Random.Range(0.8f, 1.0f);
@@ -56,15 +56,11 @@ public class BallBehavior : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("DeathZone"))
-        {
-            _source.PlayOneShot(_scorePoint);
-            ResetBall();
-        }
-        if (other.CompareTag("Brick"))
-        {
-            _source.PlayOneShot(_scorePoint);
-        }
+        GameBehavior.Instance.ScorePoint(transform.position.x < 0 ? 1 : 0);
+        
+        _source.PlayOneShot(_scorePoint);
+        
+        ResetBall();
     }
 
     private void ResetBall()

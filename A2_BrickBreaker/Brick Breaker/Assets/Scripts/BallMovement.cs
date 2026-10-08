@@ -27,6 +27,11 @@ public class BallBehavior : MonoBehaviour
         ResetBall();
     }
 
+    void Update()
+    {
+        _rb.simulated = GameBehavior.Instance.State == Utilities.GameState.Play;
+    }
+
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Paddle"))

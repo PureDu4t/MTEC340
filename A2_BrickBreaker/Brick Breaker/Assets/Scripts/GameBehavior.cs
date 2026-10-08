@@ -4,8 +4,11 @@ using TMPro;
 public class GameBehavior : MonoBehaviour
 
 {
-
+    public Color _originalColor;
+    [SerializeField] private Transform _bricksParent;
+    public SpriteRenderer[] _bricks;
     public static GameBehavior Instance;
+    public Utilities.GameState State;
     [SerializeField] private TMP_Text _scoreUI;
 
     public int Score
@@ -39,16 +42,42 @@ public class GameBehavior : MonoBehaviour
 
     void Start()
     {
+        _bricks = _bricksParent.GetComponentsInChildren<SpriteRenderer>(true);
+
+        if (_bricks.Length > 0)
+        {
+            _originalColor = _bricks[0].color;
+        }
+
         ResetGame();
+        State = Utilities.GameState.Play;
     }
 
     void ResetGame()
+{
+    Score = 0;
+
+    foreach (SpriteRenderer brick in _bricks)
     {
-        Score = 0;
+        if (brick != null)
+        {
+            brick.color = _originalColor;
+        }
     }
+}
 
     public void ScorePoint()
     {
         Score++;
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            State = State == Utilities.GameState.Play ?
+                    Utilities.GameState.Pause :
+                    Utilities.GameState.Play;
+        }
     }
 }
